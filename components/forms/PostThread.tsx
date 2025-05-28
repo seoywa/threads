@@ -26,10 +26,10 @@ import { threadValidation } from "@/lib/validations/thread";
 import { createThread } from "@/lib/actions/thread.actions";
 
 interface Props {
-  userId: string
+  userId: string;
 }
 
-const PostThread = ({ userId } : Props) => {
+const PostThread = ({ userId }: Props) => {
   const [files, setFiles] = useState<File[]>([]);
   const { startUpload } = useUploadThing("media");
   const pathname = usePathname();
@@ -48,11 +48,11 @@ const PostThread = ({ userId } : Props) => {
       text: values.thread,
       author: userId,
       communityId: null,
-      path: pathname
-    })
+      path: pathname,
+    });
 
-    router.push('/')
-  }
+    router.push("/");
+  };
 
   return (
     <Form {...form}>
@@ -60,7 +60,6 @@ const PostThread = ({ userId } : Props) => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col justify-start gap-10 mt-10"
       >
-
         {/* NAME FIELD */}
         <FormField
           control={form.control}
@@ -82,6 +81,7 @@ const PostThread = ({ userId } : Props) => {
         />
 
         <Button type="submit" className="bg-primary-500">
+          Post Thread
         </Button>
       </form>
     </Form>
