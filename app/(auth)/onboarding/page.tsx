@@ -7,6 +7,7 @@ import React from 'react'
 const Page = async () => {
   const user = await currentUser();
   const userInfo = {};
+  
   const userData = {
     id: user?.id,
     objectId: userInfo?.id,

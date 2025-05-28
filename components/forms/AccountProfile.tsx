@@ -11,6 +11,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { userValidation } from "@/lib/validations/user";
@@ -18,6 +19,9 @@ import z from "zod";
 import Image from "next/image";
 import { Textarea } from "../ui/textarea";
 import { isBase64Image } from "@/lib/utils";
+import { useUploadThing } from "@/lib/uploadthing";
+import { updateUser } from "@/lib/actions/user.actions";
+import { usePathname, useRouter } from "next/navigation";
 
 interface Props {
   user: {
@@ -32,7 +36,10 @@ interface Props {
 }
 
 const AccountProfile = ({ user, btnTitle }: Props) => {
-  const [files, setFiles] = useState<File[]>([])
+  const [files, setFiles] = useState<File[]>([]);
+  const { startUpload } = useUploadThing("media");
+  const pathname = usePathname();
+  const router = useRouter();
 
   const form = useForm({
     resolver: zodResolver(userValidation),
@@ -57,26 +64,45 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
 
       setFiles(Array.from(e.target.files));
 
-      if (!file.type.includes('image')) return;
+      if (!file.type.includes("image")) return;
 
       fileReader.onload = async (e) => {
         const imageDataUrl = e.target?.result?.toString() || "";
         fieldChange(imageDataUrl);
-      }
+      };
 
-      fileReader.readAsDataURL(file)
+      fileReader.readAsDataURL(file);
     }
   };
 
-  function onSubmit(values: z.infer<typeof userValidation>) {
+  const onSubmit = async (values: z.infer<typeof userValidation>) => {
     const blob = values.profile_photo;
 
     const hasImageChage = isBase64Image(blob);
 
     if (hasImageChage) {
-      const imgRes = useUploadThing()
+      const imgRes = await startUpload(files);
+
+      if (imgRes && imgRes[0].ufsUrl) {
+        values.profile_photo = imgRes[0].ufsUrl;
+      }
     }
-  }
+
+    await updateUser({
+      username: values.username,
+      name: values.name,
+      bio: values.bio,
+      image: values.profile_photo,
+      userId: user.id,
+      path: pathname,
+    });
+
+    if (pathname === "/profile/edit") {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  };
 
   return (
     <Form {...form}>
@@ -118,6 +144,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   onChange={(e) => handleImage(e, field.onChange)}
                 />
               </FormControl>
+              <FormMessage/>
             </FormItem>
           )}
         />
@@ -158,6 +185,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   {...field}
                 />
               </FormControl>
+              <FormMessage/>
             </FormItem>
           )}
         />
@@ -173,14 +201,21 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   Bio
                 </FormLabel>
                 <FormControl className="flex-1 text-base-semibold text-gray-200">
-                  <Textarea rows={10} className="account-form_input no-focus" {...field} />
+                  <Textarea
+                    rows={10}
+                    className="account-form_input no-focus"
+                    {...field}
+                  />
                 </FormControl>
+                <FormMessage/>
               </FormItem>
             );
           }}
         />
 
-        <Button type="submit" className="bg-primary-500">Submit</Button>
+        <Button type="submit" className="bg-primary-500">
+          Submit
+        </Button>
       </form>
     </Form>
   );
