@@ -16,6 +16,7 @@ const inter = Inter({
 
 const AuthLayout = ({ children }: { children: ReactNode }) => {
   return (
+    
     <ClerkProvider appearance={{ baseTheme: dark }}>
       <html lang="en">
         <body className={`${inter.className} bg-dark-1`}>
