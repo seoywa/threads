@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import React from 'react'
-import { useAuth } from '@clerk/nextjs';
+import { currentUser, useAuth } from '@clerk/nextjs';
 
 const Bottombar = () => {
   const pathname = usePathname();
