@@ -6,9 +6,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import React from 'react'
+import { useAuth } from '@clerk/nextjs';
 
 const Bottombar = () => {
-  const pathname = usePathname()
+  const pathname = usePathname();
+  const { userId } = useAuth();
+
   return (
     <section className='bottombar'>
       <div className='bottombar_container'>
@@ -16,6 +19,7 @@ const Bottombar = () => {
           const isActive =
             (pathname.includes(link.route) && link.route.length > 1) ||
             pathname === link.route;
+          if (link.route === '/profile') link.route = `${link.route}/${userId}`
 
           return (
             <Link
